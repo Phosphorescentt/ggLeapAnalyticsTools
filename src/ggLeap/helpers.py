@@ -8,39 +8,66 @@ def remove_date_datetime(dt: date) -> date:
     return dt
 
 
+def remove_week_datetime(dt: date) -> date:
+    """ Change dates to the following:
+        01/01/01 for a Monday
+        02/01/01 for a Tuesday
+        03/01/01 for a Wednesday
+        04/01/01 for a Thursday
+        05/01/01 for a Friday
+        06/01/01 for a Saturday
+        07/01/01 for a Sunday """
+
+    day = dt.today().weekday()
+    dt = dt.replace(year=1, month=1, day=(day + 1))
+    return dt
+
+
 def ggLeap_str_to_datetime(string: str) -> date:
     date = datetime.strptime(string,
                              '%m/%d/%Y %I:%M:%S %p')
     return date
+
 
 def read_csv(path: str) -> pd.DataFrame:
     """ Function to replace pandas.read_csv() because
     ggLeap data is screwy to start with so this function
     cleans the data and then loads it into a pandas
     dataframe """
-    cleaned_csv = clean_csv(path)
-    return cleaned_csv
 
-def clean_csv(path: str) -> pd.DataFrame:
+    cleaning_functions = [fix_RemoveOffers]
+
     f = open(path, 'r')
-    data = f.readlines()
+    raw_rows = f.readlines()
+    raw_rows = [row.split(',') for row in raw_rows]
+    columns = raw_rows.pop(0)
+
+    for f in cleaning_functions:
+        raw_rows = f(raw_rows)
+
+    cleaned_df = pd.DataFrame(raw_rows)
+    cleaned_df.columns = columns
+    return cleaned_df
+
+
+def fix_RemoveOffers(raw_rows: list) -> list:
+    """ If ggLeap returns records which have a 'RemoveOffer' action, then another 
+    of the columns will have a comma in it meaning that reading it as a CSV doesn't work
+    properly. This function fixes that """
 
     new_df_vals = []
-    for datum in data:
-        values = datum.split(',')
-
-        if 'RemovedOffer' in values:
-            # merge "Offer name: XXXXXX" and "Reason: XXXXX"
-            index = values.index('RemovedOffer')
-            offer_name = values[index + 1]
-            reason = values[index + 2]
+    for row in raw_rows:
+        if 'RemovedOffer' in row:
+            index = row.index('RemovedOffer')
+            offer_name = row[index + 1]
+            reason = row[index + 2]
 
             new_val = offer_name + "; " + reason
 
-            values.pop(index + 2)
-            values.pop(index + 1)
-            values.insert(index + 1, new_val)
+            row.pop(index + 2)
+            row.pop(index + 1)
+            row.insert(index + 1, new_val)
 
-        new_df_vals.append(values)
+        new_df_vals.append(row)
 
-    return pd.DataFrame(new_df_vals)
+    return new_df_vals
