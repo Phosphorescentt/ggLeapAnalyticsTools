@@ -39,26 +39,46 @@ def read_csv(path: str) -> pd.DataFrame:
     # because pandas is way more efficient than whatever I'm writing
     try:
         cleaned_df = pd.read_csv(path)
-        print("PANDAS MOMENT")
         return cleaned_df
     except:
         pass
 
-    print("NOT PANDAS")
-
-    cleaning_functions = [fix_RemoveOffers]
-
     f = open(path, 'r')
     raw_rows = f.readlines()
-    raw_rows = [row.split(',') for row in raw_rows]
-    columns = raw_rows.pop(0)
 
-    for f in cleaning_functions:
+    columns = raw_rows.pop(0)
+    columns = columns.split(',')
+
+    #####################################################################
+    # Break this down into two stages                                   #
+    # 1: pre-comma-breaking                                             #
+    # 2: post-comma-breaking                                            #
+    # Functions pre-comma-breaking take a list and return a list        #
+    # Functions post-comma-breaking take a 2D list and return a 2D list #
+    #####################################################################
+
+    pre_comma_br_cleaning_functions = [remove_escapes]
+    post_comma_br_cleaning_functions = [fix_RemoveOffers]
+
+    for f in pre_comma_br_cleaning_functions:
+            raw_rows = f(raw_rows)
+
+    raw_rows = break_commas(raw_rows)
+
+    for f in post_comma_br_cleaning_functions:
         raw_rows = f(raw_rows)
 
     cleaned_df = pd.DataFrame(raw_rows)
     cleaned_df.columns = columns
     return cleaned_df
+
+
+def break_commas(raw_rows: list) -> list:
+    new_rows = []
+    for row in raw_rows:
+        new_rows.append(row.split(','))
+
+    return new_rows
 
 
 def fix_RemoveOffers(raw_rows: list) -> list:
@@ -83,3 +103,18 @@ def fix_RemoveOffers(raw_rows: list) -> list:
         new_df_vals.append(row)
 
     return new_df_vals
+
+
+def remove_escapes(raw_rows: list) -> list:
+    """ On initially loading the data, a number of escape characters
+        don't get removed. This function removes them """
+    escapes = ['\n']
+
+    new_rows = []
+    for row in raw_rows:
+        for escape in escapes:
+            row.replace(escape, '')
+
+        new_rows.append(row)
+    
+    return new_rows
