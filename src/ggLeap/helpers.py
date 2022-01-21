@@ -35,6 +35,17 @@ def read_csv(path: str) -> pd.DataFrame:
     cleans the data and then loads it into a pandas
     dataframe """
 
+    # First make sure that we actually don't have a valid CSV
+    # because pandas is way more efficient than whatever I'm writing
+    try:
+        cleaned_df = pd.read_csv(path)
+        print("PANDAS MOMENT")
+        return cleaned_df
+    except:
+        pass
+
+    print("NOT PANDAS")
+
     cleaning_functions = [fix_RemoveOffers]
 
     f = open(path, 'r')
@@ -55,6 +66,7 @@ def fix_RemoveOffers(raw_rows: list) -> list:
     of the columns will have a comma in it meaning that reading it as a CSV doesn't work
     properly. This function fixes that """
 
+    # There's definitely a more efficent way of doing this.
     new_df_vals = []
     for row in raw_rows:
         if 'RemovedOffer' in row:
