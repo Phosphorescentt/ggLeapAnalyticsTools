@@ -18,13 +18,19 @@ def remove_week_datetime(dt: date) -> date:
         06/01/01 for a Saturday
         07/01/01 for a Sunday """
 
-    day = dt.today().weekday()
+    day = dt.weekday()
     dt = dt.replace(year=1, month=1, day=(day + 1))
-    return dt
+    return dt, day
 
 
 def ggLeap_str_to_datetime(string: str) -> date:
     date = datetime.strptime(string,
+                             '%m/%d/%Y %I:%M:%S %p')
+    return date
+
+
+def ggLeap_datetime_to_str(string: str) -> date:
+    date = datetime.strftime(string,
                              '%m/%d/%Y %I:%M:%S %p')
     return date
 
