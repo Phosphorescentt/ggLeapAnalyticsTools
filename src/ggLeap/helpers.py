@@ -20,7 +20,7 @@ def remove_week_datetime(dt: date) -> date:
 
     day = dt.weekday()
     dt = dt.replace(year=1, month=1, day=(day + 1))
-    return dt, day
+    return dt
 
 
 def ggLeap_str_to_datetime(string: str) -> date:
@@ -33,6 +33,22 @@ def ggLeap_datetime_to_str(string: str) -> date:
     date = datetime.strftime(string,
                              '%m/%d/%Y %I:%M:%S %p')
     return date
+
+
+def ggLeap_str_to_datetime_no_time(string: str) -> date:
+    date = datetime.strptime(string,
+                             '%m/%d/%Y')
+    return date
+
+
+def ggLeap_get_weekday(string: str) -> int:
+    date = ggLeap_str_to_datetime(string)
+    return date.weekday()
+
+
+def ggLeap_get_weekday_no_time(string: str) -> int:
+    date = ggLeap_str_to_datetime_no_time(string)
+    return date.weekday()
 
 
 def read_csv(path: str) -> pd.DataFrame:

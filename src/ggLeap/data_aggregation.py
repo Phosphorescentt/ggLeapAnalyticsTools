@@ -38,17 +38,24 @@ def remove_weeks(df: pd.DataFrame) -> pd.DataFrame:
         07/01/01 for a Sunday
     """
 
-    days = [0 for i in range(7)]
+    dates = []
     new_records = []
     for i in range(len(df)):
         current_record = df.loc[i].copy()
         date_string = current_record["Date"]
         dt = helpers.ggLeap_str_to_datetime(date_string)
-        # print(dt.today().weekday())
-        new_dt, day = helpers.remove_week_datetime(dt)
-        days[day] += 1
+        new_dt = helpers.remove_week_datetime(dt)
         current_record["Date"] = new_dt
         new_records.append(current_record.copy())
+
+        date = date_string.split(' ')[0]
+        if date not in dates:
+            dates.append(date)
+
+    days = [0 for i in range(7)]
+    for date in dates:
+        day = helpers.ggLeap_get_weekday_no_time(date)
+        days[day] += 1
 
     return pd.DataFrame(new_records.copy()), days
 
