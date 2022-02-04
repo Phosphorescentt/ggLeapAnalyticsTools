@@ -2,21 +2,22 @@ import pandas as pd
 
 from datetime import datetime, date
 
+
 def remove_date_datetime(dt: date) -> date:
-    """ Remove a date from a datetime. """
+    """Remove a date from a datetime."""
     dt = dt.replace(year=1, month=1, day=1)
     return dt
 
 
 def remove_week_datetime(dt: date) -> date:
-    """ Change dates to the following:
-        01/01/01 for a Monday
-        02/01/01 for a Tuesday
-        03/01/01 for a Wednesday
-        04/01/01 for a Thursday
-        05/01/01 for a Friday
-        06/01/01 for a Saturday
-        07/01/01 for a Sunday """
+    """Change dates to the following:
+    01/01/01 for a Monday
+    02/01/01 for a Tuesday
+    03/01/01 for a Wednesday
+    04/01/01 for a Thursday
+    05/01/01 for a Friday
+    06/01/01 for a Saturday
+    07/01/01 for a Sunday"""
 
     day = dt.weekday()
     dt = dt.replace(year=1, month=1, day=(day + 1))
@@ -24,20 +25,17 @@ def remove_week_datetime(dt: date) -> date:
 
 
 def ggLeap_str_to_datetime(string: str) -> date:
-    date = datetime.strptime(string,
-                             '%m/%d/%Y %I:%M:%S %p')
+    date = datetime.strptime(string, "%m/%d/%Y %I:%M:%S %p")
     return date
 
 
 def ggLeap_datetime_to_str(string: str) -> date:
-    date = datetime.strftime(string,
-                             '%m/%d/%Y %I:%M:%S %p')
+    date = datetime.strftime(string, "%m/%d/%Y %I:%M:%S %p")
     return date
 
 
 def ggLeap_str_to_datetime_no_time(string: str) -> date:
-    date = datetime.strptime(string,
-                             '%m/%d/%Y')
+    date = datetime.strptime(string, "%m/%d/%Y")
     return date
 
 
@@ -52,10 +50,10 @@ def ggLeap_get_weekday_no_time(string: str) -> int:
 
 
 def read_csv(path: str) -> pd.DataFrame:
-    """ Function to replace pandas.read_csv() because
+    """Function to replace pandas.read_csv() because
     ggLeap data is screwy to start with so this function
     cleans the data and then loads it into a pandas
-    dataframe """
+    dataframe"""
 
     # First make sure that we actually don't have a valid CSV
     # because pandas is way more efficient than whatever I'm writing
@@ -65,11 +63,11 @@ def read_csv(path: str) -> pd.DataFrame:
     except:
         pass
 
-    f = open(path, 'r')
+    f = open(path, "r")
     raw_rows = f.readlines()
 
     columns = raw_rows.pop(0)
-    columns = columns.split(',')
+    columns = columns.split(",")
 
     #####################################################################
     # Break this down into two stages                                   #
@@ -83,7 +81,7 @@ def read_csv(path: str) -> pd.DataFrame:
     post_comma_br_cleaning_functions = [fix_RemoveOffers]
 
     for f in pre_comma_br_cleaning_functions:
-            raw_rows = f(raw_rows)
+        raw_rows = f(raw_rows)
 
     raw_rows = break_commas(raw_rows)
 
@@ -98,21 +96,21 @@ def read_csv(path: str) -> pd.DataFrame:
 def break_commas(raw_rows: list) -> list:
     new_rows = []
     for row in raw_rows:
-        new_rows.append(row.split(','))
+        new_rows.append(row.split(","))
 
     return new_rows
 
 
 def fix_RemoveOffers(raw_rows: list) -> list:
-    """ If ggLeap returns records which have a 'RemoveOffer' action, then another 
+    """If ggLeap returns records which have a 'RemoveOffer' action, then another
     of the columns will have a comma in it meaning that reading it as a CSV doesn't work
-    properly. This function fixes that """
+    properly. This function fixes that"""
 
     # There's definitely a more efficent way of doing this.
     new_df_vals = []
     for row in raw_rows:
-        if 'RemovedOffer' in row:
-            index = row.index('RemovedOffer')
+        if "RemovedOffer" in row:
+            index = row.index("RemovedOffer")
             offer_name = row[index + 1]
             reason = row[index + 2]
 
@@ -128,15 +126,15 @@ def fix_RemoveOffers(raw_rows: list) -> list:
 
 
 def remove_escapes(raw_rows: list) -> list:
-    """ On initially loading the data, a number of escape characters
-        don't get removed. This function removes them """
-    escapes = ['\n']
+    """On initially loading the data, a number of escape characters
+    don't get removed. This function removes them"""
+    escapes = ["\n"]
 
     new_rows = []
     for row in raw_rows:
         for escape in escapes:
-            row.replace(escape, '')
+            row.replace(escape, "")
 
         new_rows.append(row)
-    
+
     return new_rows
