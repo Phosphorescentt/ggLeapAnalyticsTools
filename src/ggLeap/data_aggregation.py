@@ -1,6 +1,7 @@
 from datetime import datetime
 
 import pandas as pd
+import numpy as np
 
 from . import helpers
 from . import DataHandler
@@ -58,6 +59,75 @@ def remove_weeks(df: pd.DataFrame) -> pd.DataFrame:
         days[day] += 1
 
     return pd.DataFrame(new_records.copy()), days
+
+
+def collect_actions(df: pd.DataFrame, action: str) -> tuple[list, list]:
+    """
+    Takes data for either a single day or multiple days
+    and generates cumulative distribution of the given
+    action across those days. Returns a list of action
+    distributions for each day
+    """
+    action_records = df.loc[df["Action"] == action]
+
+    dates = []
+    action_dates_datetimes = []
+    for i in range(len(action_records)):
+        date = action_records.iloc[i]["Date"]
+        date_no_time = date.date()
+
+        if date_no_time in dates:
+            j = dates.index(date_no_time)
+            action_dates_datetimes[j].append(date)
+        else:
+            dates.append(date_no_time)
+            action_dates_datetimes.append([])
+            print(len(action_dates_datetimes))
+
+            j = dates.index(date_no_time)
+            action_dates_datetimes[j].append(date)
+
+    return dates, action_dates_datetimes
+
+
+def collect_logins(df: pd.DataFrame) -> tuple[list, list]:
+    normal_dates, normal_datetimes = generate_cumulative_actions(df, "LoggedIn")
+    external_dates, external_datetimes = generate_cumulative_actions(
+        df, "ExternalLogin"
+    )
+
+    date_set = list(set(normal_dates + external_dates))
+
+    datetimes = []
+    if len(normal_datetimes) == len(external_datetimes):
+        for i in range(len(normal_datetimes)):
+            datetimes.append(normal_datetimes[i] + external_datetimes[i])
+
+    return date_set, datetimes
+
+
+def collect_logouts(df: pd.DataFrame) -> tuple[list, list]:
+    logout_dates, logout_datetimes = generate_cumulative_actions(df, "LoggedOut")
+
+    return logout_dates, logout_datetimes
+
+
+def generate_cumulative_actions(
+    action: string, open_time: date, close_time: date, divisions: int
+) -> tuple[list, list[np.array]]:
+    pass
+
+
+def generate_cumulative_logins(
+    open_time: date, close_time: date, divisions: int
+) -> tuple[list, list[np.array]]:
+    pass
+
+
+def generate_cumulative_logouts(
+    open_time: date, close_time: date, divisions: int
+) -> tuple[list, list[np.array]]:
+    pass
 
 
 def total_user_seconds(dh: DataHandler.DataHandler, username: str) -> int:

@@ -29,13 +29,13 @@ def ggLeap_str_to_datetime(string: str) -> date:
     return date
 
 
-def ggLeap_datetime_to_str(string: str) -> date:
+def ggLeap_datetime_to_str(string: datetime) -> str:
     date = datetime.strftime(string, "%m/%d/%Y %I:%M:%S %p")
     return date
 
 
 def ggLeap_str_to_datetime_no_time(string: str) -> date:
-    date = datetime.strptime(string, "%m/%d/%Y")
+    date = datetime.strptime(string.split(" ")[0], "%m/%d/%Y")
     return date
 
 
@@ -66,8 +66,8 @@ def read_csv(path: str) -> pd.DataFrame:
     f = open(path, "r")
     raw_rows = f.readlines()
 
-    columns = raw_rows.pop(0)
-    columns = columns.split(",")
+    columns_list = raw_rows.pop(0)
+    columns = columns_list.split(",")
 
     #####################################################################
     # Break this down into two stages                                   #
