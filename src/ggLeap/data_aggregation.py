@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, date
 
 import pandas as pd
 import numpy as np
@@ -70,8 +70,8 @@ def collect_actions(df: pd.DataFrame, action: str) -> tuple[list, list]:
     """
     action_records = df.loc[df["Action"] == action]
 
-    dates = []
-    action_dates_datetimes = []
+    dates: list[date] = []
+    action_dates_datetimes: list[list[date]] = []
     for i in range(len(action_records)):
         date = action_records.iloc[i]["Date"]
         date_no_time = date.date()
@@ -82,7 +82,6 @@ def collect_actions(df: pd.DataFrame, action: str) -> tuple[list, list]:
         else:
             dates.append(date_no_time)
             action_dates_datetimes.append([])
-            print(len(action_dates_datetimes))
 
             j = dates.index(date_no_time)
             action_dates_datetimes[j].append(date)
@@ -91,10 +90,8 @@ def collect_actions(df: pd.DataFrame, action: str) -> tuple[list, list]:
 
 
 def collect_logins(df: pd.DataFrame) -> tuple[list, list]:
-    normal_dates, normal_datetimes = generate_cumulative_actions(df, "LoggedIn")
-    external_dates, external_datetimes = generate_cumulative_actions(
-        df, "ExternalLogin"
-    )
+    normal_dates, normal_datetimes = collect_actions(df, "LoggedIn")
+    external_dates, external_datetimes = collect_actions(df, "ExternalLogin")
 
     date_set = list(set(normal_dates + external_dates))
 
@@ -107,26 +104,26 @@ def collect_logins(df: pd.DataFrame) -> tuple[list, list]:
 
 
 def collect_logouts(df: pd.DataFrame) -> tuple[list, list]:
-    logout_dates, logout_datetimes = generate_cumulative_actions(df, "LoggedOut")
+    logout_dates, logout_datetimes = collect_actions(df, "LoggedOut")
 
     return logout_dates, logout_datetimes
 
 
 def generate_cumulative_actions(
-    action: string, open_time: date, close_time: date, divisions: int
-) -> tuple[list, list[np.array]]:
+    action: str, open_time: date, close_time: date, divisions: int, coarseness: int
+) -> tuple[list, list[np.ndarray]]:
     pass
 
 
 def generate_cumulative_logins(
-    open_time: date, close_time: date, divisions: int
-) -> tuple[list, list[np.array]]:
+    open_time: date, close_time: date, divisions: int, coarseness: int
+) -> tuple[list, list[np.ndarray]]:
     pass
 
 
 def generate_cumulative_logouts(
-    open_time: date, close_time: date, divisions: int
-) -> tuple[list, list[np.array]]:
+    open_time: date, close_time: date, divisions: int, coarseness: int
+) -> tuple[list, list[np.ndarray]]:
     pass
 
 

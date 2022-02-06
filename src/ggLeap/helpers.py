@@ -2,6 +2,8 @@ import pandas as pd
 
 from datetime import datetime, date
 
+from typing import *
+
 
 def remove_date_datetime(dt: date) -> date:
     """Remove a date from a datetime."""
@@ -63,8 +65,8 @@ def read_csv(path: str) -> pd.DataFrame:
     except:
         pass
 
-    f = open(path, "r")
-    raw_rows = f.readlines()
+    file = open(path, "r")
+    raw_rows = file.readlines()
 
     columns_list = raw_rows.pop(0)
     columns = columns_list.split(",")
@@ -77,8 +79,8 @@ def read_csv(path: str) -> pd.DataFrame:
     # Functions post-comma-breaking take a 2D list and return a 2D list #
     #####################################################################
 
-    pre_comma_br_cleaning_functions = [remove_escapes]
-    post_comma_br_cleaning_functions = [fix_RemoveOffers]
+    pre_comma_br_cleaning_functions: list[Callable] = [remove_escapes]
+    post_comma_br_cleaning_functions: list[Callable] = [fix_RemoveOffers]
 
     for f in pre_comma_br_cleaning_functions:
         raw_rows = f(raw_rows)
