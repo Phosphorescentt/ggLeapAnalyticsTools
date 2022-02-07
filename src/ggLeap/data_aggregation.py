@@ -61,17 +61,11 @@ def remove_weeks(df: pd.DataFrame) -> pd.DataFrame:
     return pd.DataFrame(new_records.copy()), days
 
 
-def collect_actions(df: pd.DataFrame, action: str) -> tuple[list, list]:
-    """
-    Takes data for either a single day or multiple days
-    and generates cumulative distribution of the given
-    action across those days. Returns a list of action
-    distributions for each day
-    """
+def collect_actions(df: pd.DataFrame, action: str) -> tuple[list[date], list[pd.DataFrame]]:
     action_records = df.loc[df["Action"] == action]
 
     dates: list[date] = []
-    action_dates_datetimes: list[list[date]] = []
+    action_dates_datetimes: list[list[date]] = [[]]
     for i in range(len(action_records)):
         date = action_records.iloc[i]["Date"]
         date_no_time = date.date()
@@ -86,45 +80,80 @@ def collect_actions(df: pd.DataFrame, action: str) -> tuple[list, list]:
             j = dates.index(date_no_time)
             action_dates_datetimes[j].append(date)
 
-    return dates, action_dates_datetimes
+    colns: list[pd.DataFrame] = []
+    for entry in action_dates_datetimes:
+        colns.append(pd.DataFrame(entry))
+
+    return dates, colns
 
 
-def collect_logins(df: pd.DataFrame) -> tuple[list, list]:
+def collect_logins(df: pd.DataFrame) -> tuple[list[date], list[pd.DataFrame]]:
     normal_dates, normal_datetimes = collect_actions(df, "LoggedIn")
     external_dates, external_datetimes = collect_actions(df, "ExternalLogin")
 
     date_set = list(set(normal_dates + external_dates))
 
+    new_dates = []
     datetimes = []
-    if len(normal_datetimes) == len(external_datetimes):
-        for i in range(len(normal_datetimes)):
-            datetimes.append(normal_datetimes[i] + external_datetimes[i])
+    for date in date_set:
+        if date in normal_dates and date in external_dates:
+            i, j = normal_dates.index(date), external_dates.index(date)
+            datetimes.append(pd.concat([normal_datetimes[i], external_datetimes[j]]))
+            new_dates.append(date)
+        elif date in normal_dates and date not in external_dates:
+            i = normal_dates.index(date)
+            datetimes.append(normal_datetimes[i])
+            new_dates.append(date)
+        elif date not in normal_dates and date in external_dates:
+            j = external_dates.index(date)
+            datetimes.append(external_datetimes[i])
+            new_dates.append(date)
+        else:
+            raise Exception("Something went wrong.")
 
-    return date_set, datetimes
+    return new_dates, datetimes
 
 
-def collect_logouts(df: pd.DataFrame) -> tuple[list, list]:
+def collect_logouts(df: pd.DataFrame) -> tuple[list[date], list[pd.DataFrame]]:
     logout_dates, logout_datetimes = collect_actions(df, "LoggedOut")
 
     return logout_dates, logout_datetimes
 
 
-def generate_cumulative_actions(
-    action: str, open_time: date, close_time: date, divisions: int, coarseness: int
+def generate_cumulative_distribution(
+    days: list[date], data: list[pd.DataFrame]
 ) -> tuple[list, list[np.ndarray]]:
-    pass
 
+    # days, actions = collect_actions(df, action)
 
-def generate_cumulative_logins(
-    open_time: date, close_time: date, divisions: int, coarseness: int
-) -> tuple[list, list[np.ndarray]]:
-    pass
+    cum_actions: list[tuple[list, list]] = [([],[])]
+    for i in range(len(days)):
+        print("i: {}".format(i))
+        count: int = 1
+        temp_cum_actions: tuple[list, list] = ([],[])
+        for action in data[i]:
+            print(data[i])
+            temp_cum_actions[0].append(action)
+            temp_cum_actions[1].append(count)
+            count += 1
 
+        cum_actions.append(temp_cum_actions)
 
-def generate_cumulative_logouts(
-    open_time: date, close_time: date, divisions: int, coarseness: int
-) -> tuple[list, list[np.ndarray]]:
-    pass
+    return days, cum_actions
+
+# def generate_cumulative_logins(
+#     df: pd.DataFrame, action: str
+# ) -> tuple[list[date], tuple[list, list[np.ndarray]]]:
+#
+#     days, logins = collect_logins(df)
+#     return days, generate_cumulative_actions(logins)
+#
+#
+# def generate_cumulative_logouts(
+#     df: pd.DataFrame, action: str
+# ) -> tuple[list[], list[np.ndarray]]:
+#     days, logouts = collect_logouts(df)
+#     return days, generate_cumulative_actions(logouts)
 
 
 def total_user_seconds(dh: DataHandler.DataHandler, username: str) -> int:
