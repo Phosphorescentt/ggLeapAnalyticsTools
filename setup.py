@@ -5,7 +5,7 @@ with open("README.md", "r", encoding="utf-8") as fh:
 
 setuptools.setup(
     name = "ggLeapAnalyticsTools",
-    version = "0.0.4",
+    version = "0.1.0",
     author = "Joshua \"Phosphorescent\" Mankelow",
     description = "A python package for helping users to generate and interact with data from ggLeap esports venue management software.",
     long_description = long_description,
