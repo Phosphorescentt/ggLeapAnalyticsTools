@@ -22,7 +22,7 @@ def remove_week_datetime(dt: date) -> date:
     07/01/01 for a Sunday"""
 
     day = dt.weekday()
-    dt = dt.replace(year=1, month=1, day=(day + 1))
+    dt = dt.replace(year=2000, month=1, day=(day + 1))
     return dt
 
 
