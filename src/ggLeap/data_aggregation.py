@@ -82,7 +82,7 @@ def collect_actions(
             j = dates.index(date_no_time)
             action_dates_datetimes[j].append(date)
 
-    colns: list[pd.DataFrame] = []
+    colns: list[pd.Series] = []
     for entry in action_dates_datetimes:
         colns.append(pd.Series(entry))
 
