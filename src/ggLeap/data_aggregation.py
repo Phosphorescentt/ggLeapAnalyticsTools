@@ -82,9 +82,14 @@ def collect_actions(
             j = dates.index(date_no_time)
             action_dates_datetimes[j].append(date)
 
+    dates_unsorted = dates
+    dates.sort()
+
     colns: list[pd.Series] = []
-    for entry in action_dates_datetimes:
-        colns.append(pd.Series(entry))
+    for date in dates:
+        i = dates_unsorted.index(date)
+        s = pd.Series(action_dates_datetimes[i])
+        colns.append(s)
 
     return dates, colns
 
@@ -94,6 +99,7 @@ def collect_logins(df: pd.DataFrame) -> tuple[list[date], list[pd.Series]]:
     external_dates, external_datetimes = collect_actions(df, "ExternalLogin")
 
     date_set = list(set(normal_dates + external_dates))
+    date_set.sort()
 
     new_dates = []
     datetimes = []
