@@ -82,14 +82,14 @@ def collect_actions(
             j = dates.index(date_no_time)
             action_dates_datetimes[j].append(date)
 
-    dates_unsorted = dates
+    dates_unsorted = dates.copy()
     dates.sort()
 
     colns: list[pd.Series] = []
     for date in dates:
         i = dates_unsorted.index(date)
         s = pd.Series(action_dates_datetimes[i])
-        colns.append(s)
+        colns.append(s.copy())
 
     return dates, colns
 

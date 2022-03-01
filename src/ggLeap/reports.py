@@ -43,19 +43,19 @@ def concurrent_logins(df: pd.DataFrame) -> pd.DataFrame:
 
         total = len(login_times) + len(logout_times)
 
-        print(f"Len login times: {len(login_times)}")
-        print(f"Len logout times: {len(logout_times)}")
-        print(f"Total: {total}")
+        # print(f"Len login times: {len(login_times)}")
+        # print(f"Len logout times: {len(logout_times)}")
+        # print(f"Total: {total}")
 
         temp_cum_actions: tuple[list, list] = ([], [])
         a = 0
         b = 0
         current_users = 0
         for j in range(total):
-            print(f"j: {j}")
-            print(f"a: {a}")
-            print(f"b: {b}")
-            print("======")
+            # print(f"j: {j}")
+            # print(f"a: {a}")
+            # print(f"b: {b}")
+            # print("======")
 
             try:
                 login_time = login_times[a]
