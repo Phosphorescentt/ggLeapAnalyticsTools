@@ -1,9 +1,10 @@
-from datetime import datetime, date
+# from datetime import datetime, date
 
 import pandas as pd
-import numpy as np
 
-from . import helpers
+# import numpy as np
+
+# from . import helpers
 from . import data_aggregation
 
 """
@@ -16,7 +17,7 @@ be instantly plotted onto a graph with matplotlib.
 """
 
 
-def concurrent_logins(df: pd.DataFrame) -> pd.DataFrame:
+def concurrent_logins(df: pd.DataFrame) -> tuple[list, list]:
     # Collect logins
     login_days, login_data = data_aggregation.collect_logins(df)
     logout_days, logout_data = data_aggregation.collect_logouts(df)
@@ -43,31 +44,24 @@ def concurrent_logins(df: pd.DataFrame) -> pd.DataFrame:
 
         total = len(login_times) + len(logout_times)
 
-        # print(f"Len login times: {len(login_times)}")
-        # print(f"Len logout times: {len(logout_times)}")
-        # print(f"Total: {total}")
-
         temp_cum_actions: tuple[list, list] = ([], [])
         a = 0
         b = 0
         current_users = 0
         for j in range(total):
-            # print(f"j: {j}")
-            # print(f"a: {a}")
-            # print(f"b: {b}")
-            # print("======")
-
             try:
                 login_time = login_times[a]
                 logout_time = logout_times[b]
                 if login_time < logout_time:
                     a += 1
+                    print("ADDING")
                     current_users += 1
 
                     temp_cum_actions[0].append(login_time)
                     temp_cum_actions[1].append(current_users)
                 elif logout_time < login_time:
                     b += 1
+                    print("SUBTRACTING")
                     current_users -= 1
 
                     temp_cum_actions[0].append(logout_time)
@@ -75,15 +69,17 @@ def concurrent_logins(df: pd.DataFrame) -> pd.DataFrame:
                 elif login_time == logout_time:
                     a += 1
                     b += 1
+                    print("NOTHING")
                     current_users += 0
 
                     temp_cum_actions[0].append(login_time)
                     temp_cum_actions[1].append(current_users)
                 else:
                     raise Exception("Something went wrong.")
-            except:
-                temp_cum_actions[0].append(login_time)
-                temp_cum_actions[1].append(current_users)
+            except Exception:
+                pass
+
+            print(f"Current Users: {current_users}")
 
         distns.append(temp_cum_actions)
 

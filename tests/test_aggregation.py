@@ -3,9 +3,7 @@ def test_collect_actions_dates_lineup():
     from ggLeap.data_aggregation import remove_weeks, collect_actions
 
     data = read_csv("data/week.csv")
-
     data, _ = remove_weeks(data.copy())
-
     dates, distns = collect_actions(data, "LoggedIn")
 
     for i, day in enumerate(dates):
